@@ -22,3 +22,37 @@ for _ in 0..<10 {
 [KMeans.Vector(data: [2.0], length: 1), KMeans.Vector(data: [5.0], length: 1)]
 [KMeans.Vector(data: [5.0], length: 1), KMeans.Vector(data: [2.0], length: 1)]
 ```
+
+## Code
+### [KMeans.swift](./KMeans/KMeans.swift)
+```swift
+public class KMeans {
+    
+    private var criteria: [KMStoppingCriterion]
+    
+    init(criteria: [KMStoppingCriterion]) {
+        self.criteria = criteria
+    }
+    
+    public func fit(numClusters: Int, data: Vectors) -> Vectors {
+        guard data.count >= numClusters else { return data }
+        var iteration = 0, centroids = randomSelect(numClusters, from: data)
+        
+        while !meetsCriteria(iteration: iteration, centroids: centroids) {
+            // MARK: - (Step 1) Assign to clusters
+            var clusters: [Vectors] = Array(repeating: [], count: numClusters)
+            for vector in data {
+                let idx = findClosestCenter(vector, centroids)
+                clusters[idx].append(vector)
+            }
+            
+            // MARK: - (Step 2) Update centroids
+            updateCentroids(centroids: &centroids, clusters: clusters)
+            
+            iteration += 1
+        }
+        return centroids
+    }
+    
+}
+```
